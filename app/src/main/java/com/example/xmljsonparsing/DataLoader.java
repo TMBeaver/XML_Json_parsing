@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.List;
 
 
-public class DataLoader extends AsyncTask<Void, Void, String> {
+public class DataLoader extends AsyncTask<Void, Void, List<String>> {
     private MainActivity mainActivity;
 
     public DataLoader(MainActivity mainActivity) {
@@ -18,13 +18,13 @@ public class DataLoader extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected List<String> doInBackground(Void... voids) {
         try {
             URL url = new URL("http://www.floatrates.com/daily/usd.xml");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = connection.getInputStream();
             Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-            return scanner.hasNext() ? scanner.next() : "";
+            return new Parser().parseData(scanner.hasNext() ? scanner.next() : "");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -32,12 +32,10 @@ public class DataLoader extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String data) {
+    protected void onPostExecute(List<String> data) {
         if (data != null) {
-            // Parse the data using the Parser class
-            List<String> currencyRates = new Parser().parseData(data);
             // Update UI in MainActivity
-            mainActivity.updateListView(currencyRates);
+            mainActivity.updateListView(data);
         }
     }
 }
