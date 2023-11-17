@@ -16,18 +16,22 @@ public class Parser {
         List<String> currencyRates = new ArrayList<>();
 
         try {
+            String currencyName = "";
+            String rate  = "";
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(getInputStream(data), "UTF-8");
 
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("currency")) {
+                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("targetCurrency")) {
                     // Extract required information and format the currency rates
-                    String currencyName = parser.getAttributeValue(null, "name");
-                    String rate = parser.getAttributeValue(null, "rate");
+                    currencyName = parser.nextText();
+                }
+                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("exchangeRate")) {
+                    // Extract required information and format the currency rates
+                    rate = parser.nextText();
                     currencyRates.add(currencyName + " - " + rate);
                 }
-
                 eventType = parser.next();
             }
 
@@ -41,5 +45,6 @@ public class Parser {
     private InputStream getInputStream(String data) {
         // Convert the String data to InputStream
         return new ByteArrayInputStream(data.getBytes());
+
     }
 }
